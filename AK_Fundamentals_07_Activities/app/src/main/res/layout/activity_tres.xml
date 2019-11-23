@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/colorActivityTres">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Haga click en el siguiente botón para cerrar la aplicación"
+        android:textSize="30sp"
+        android:layout_centerInParent="true"
+        android:gravity="center_horizontal"
+        android:padding="20dp"
+        android:textStyle="bold"
+        android:textColor="#FFF"
+        android:layout_above="@id/btnSalirApp"/>
+
+    <Button
+        android:id="@+id/btnSalirApp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Salir aplicación"
+        android:layout_centerInParent="true"
+        android:layout_margin="30dp"/>
+
+</RelativeLayout>
