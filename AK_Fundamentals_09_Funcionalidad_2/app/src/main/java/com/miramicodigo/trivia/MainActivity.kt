@@ -5,6 +5,7 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Base64
 import android.util.Log
 import android.view.Gravity
 import android.view.animation.AnimationUtils
@@ -13,7 +14,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.ArrayList
+import java.math.BigInteger
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,39 +28,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         supportActionBar?.hide()
-
         lista = cargarDatos()
 
         crearSwitcher()
         asignarAnimacion()
-
-        isImagen.setImageResource(lista[posicion].imagen)
-        tsUno.setText(lista[posicion].opciones[0])
-        tsDos.setText(lista[posicion].opciones[1])
-        tsTres.setText(lista[posicion].opciones[2])
-        tsUno.background = ContextCompat.getDrawable(this, R.drawable.boton_opciones)
-        tsDos.background = ContextCompat.getDrawable(this, R.drawable.boton_opciones)
-        tsTres.background = ContextCompat.getDrawable(this, R.drawable.boton_opciones)
-        tsUno.isEnabled = true
-        tsDos.isEnabled = true
-        tsTres.isEnabled = true
-
+        asignarUI()
 
         btnSiguiente.setOnClickListener {
             if(posicion < lista.size - 1) {
                 if(lista[posicion].seleccionado != -1) {
                     if(posicion != lista.size - 1) {
                         posicion++
-                        isImagen.setImageResource(lista[posicion].imagen)
-                        tsUno.setText(lista[posicion].opciones[0])
-                        tsDos.setText(lista[posicion].opciones[1])
-                        tsTres.setText(lista[posicion].opciones[2])
-                        tsUno.background = ContextCompat.getDrawable(this, R.drawable.boton_opciones)
-                        tsDos.background = ContextCompat.getDrawable(this, R.drawable.boton_opciones)
-                        tsTres.background = ContextCompat.getDrawable(this, R.drawable.boton_opciones)
-                        tsUno.isEnabled = true
-                        tsDos.isEnabled = true
-                        tsTres.isEnabled = true
+                        asignarUI()
                     }
                 } else {
                     val anim = AnimationUtils.loadAnimation(this, R.anim.shake)
@@ -83,6 +65,19 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    fun asignarUI() {
+        isImagen.setImageResource(lista[posicion].imagen)
+        tsUno.setText(lista[posicion].opciones[0])
+        tsDos.setText(lista[posicion].opciones[1])
+        tsTres.setText(lista[posicion].opciones[2])
+        tsUno.background = ContextCompat.getDrawable(this, R.drawable.boton_opciones)
+        tsDos.background = ContextCompat.getDrawable(this, R.drawable.boton_opciones)
+        tsTres.background = ContextCompat.getDrawable(this, R.drawable.boton_opciones)
+        tsUno.isEnabled = true
+        tsDos.isEnabled = true
+        tsTres.isEnabled = true
+    }
+
     fun opcionSeleccionada(pos: Int) {
         lista[posicion].seleccionado = pos
 
@@ -90,11 +85,8 @@ class MainActivity : AppCompatActivity() {
         tsDos.isEnabled = false
         tsTres.isEnabled = false
 
-        Log.e("POSICION QUE LLEGA", "Posicion: $pos")
-        Log.e("POSICION SELECCIONADA", "Posicion: ${lista[posicion].seleccionado}")
-        Log.e("POSICION RESPUESTA", "Posicion: ${lista[posicion].respuesta}")
-
-        if(lista[posicion].seleccionado == lista[posicion].respuesta) {
+        if(lista[posicion].respuesta == lista[posicion].seleccionado) {
+            lista[posicion].estado = true
             when(pos) {
                 0 -> {
                     tsUno.background = ContextCompat.getDrawable(this, R.drawable.correcto)
@@ -146,8 +138,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-
     }
 
     fun crearSwitcher() {
@@ -194,28 +184,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun calcularResultado(lista: MutableList<Pais>) {
-        lista[0].seleccionado
+        var correctos = 0
+        lista.forEach { pais ->
+            if(pais.estado)
+                correctos++
+        }
         val intent = Intent(this, ResultadoActivity::class.java)
-        intent.putParcelableArrayListExtra("lista", lista as ArrayList<out Parcelable>)
+        intent.putExtra("correctos", correctos)
+        intent.putExtra("incorrectos", lista.size - correctos)
         startActivity(intent)
+        finish()
     }
 
     fun cargarDatos(): MutableList<Pais> {
         val listaPaises = mutableListOf<Pais>()
         val opciones = resources.getStringArray(R.array.opciones)
         val imagenes = resources.obtainTypedArray(R.array.imagenes)
-        val respuestas = resources.getIntArray(R.array.respuestas2)
+        val respuestas = resources.getIntArray(R.array.respuestas)
 
         for (i in opciones.indices) {
             val p = Pais(
                 opciones[i].split(",".toRegex()).toTypedArray(),
                 imagenes.getResourceId(i, -1),
                 respuestas[i],
-                -1
+                -1,
+                false
             )
             listaPaises.add(p)
         }
         listaPaises.shuffle()
         return listaPaises
     }
+
 }

@@ -2,6 +2,8 @@ package com.miramicodigo.trivia
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_resultado.*
 
 class ResultadoActivity : AppCompatActivity() {
 
@@ -9,10 +11,14 @@ class ResultadoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_resultado)
 
-        val lista = intent.putParcelableArrayListExtra("lista", null!!) as MutableList<Pais>
+        val corr = intent.getIntExtra("correctos", -1)
+        val incorr = intent.getIntExtra("incorrectos", -1)
 
-        lista.forEach {
-            println("PRINTTTTTTTTTT : ${it.respuesta}")
+        tvResultadoCorrecta.text = corr.toString()
+        tvResultadoIncorrecta.text = incorr.toString()
+
+        btnAceptar.setOnClickListener {
+            finish()
         }
     }
 }

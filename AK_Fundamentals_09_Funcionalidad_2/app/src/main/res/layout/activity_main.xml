@@ -37,8 +37,7 @@
             android:id="@+id/isImagen"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:layout_centerHorizontal="true"
-            />
+            android:layout_centerHorizontal="true"/>
 
     </RelativeLayout>
 
